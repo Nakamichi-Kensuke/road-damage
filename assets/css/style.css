@@ -306,3 +306,105 @@ body {
   from { stroke-opacity: 0; }
   to { stroke-opacity: 1; }
 }
+
+/* ===== リサイズ可能なパネルの境界線 ===== */
+.panel-divider {
+  width: 10px;
+  background-color: #1f2937;
+  cursor: col-resize;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  user-select: none;
+}
+
+.panel-divider:hover {
+  background-color: #374151;
+}
+
+.panel-divider.dragging {
+  background-color: #3b82f6;
+}
+
+.panel-divider-handle {
+  width: 4px;
+  height: 60px;
+  background-color: #4b5563;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.panel-divider:hover .panel-divider-handle {
+  background-color: #6b7280;
+}
+
+.panel-divider.dragging .panel-divider-handle {
+  background-color: #60a5fa;
+}
+
+/* ===== モバイル & タブレット対応 ===== */
+@media (max-width: 1024px) {
+  /* タブレット縦向き: サイドバーを狭く */
+  #sidebar {
+    width: 12rem;
+  }
+}
+
+@media (max-width: 768px) and (orientation: landscape) {
+  /* スマホ横画面: コンパクトなレイアウト */
+  #sidebar {
+    width: 10rem;
+    padding: 0.75rem;
+  }
+
+  .sidebar-text {
+    font-size: 0.875rem;
+  }
+
+  #status-panel {
+    width: 20rem;
+  }
+
+  .result-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 640px) {
+  /* スマホ縦画面: サイドバーを隠せるように */
+  #sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  #sidebar.show {
+    transform: translateX(0);
+  }
+
+  #toggleSidebar {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 999;
+    background-color: #374151;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+  }
+}
+
+/* ===== 画像モーダルのタッチ操作対応 ===== */
+#modal-image {
+  touch-action: none;
+  transform-origin: center center;
+  transition: transform 0.3s ease;
+}

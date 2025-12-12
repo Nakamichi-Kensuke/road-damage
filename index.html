@@ -60,12 +60,14 @@
   
 </aside>
 
-<div class="flex flex-1 gap-4 p-4">
-  <div class="flex-1 flex">
+<div class="flex flex-1 gap-0 p-4">
+  <div id="map-container" class="flex-1 flex">
     <div id="map" class="rounded-lg shadow-lg border border-gray-700 fade-in delay-1"></div>
   </div>
 
-  <aside id="status-panel" class="w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 flex-col gap-3 hidden fade-in delay-2">
+  <!-- リサイズ可能な境界線はJSで追加されます -->
+
+  <aside id="status-panel" class="flex-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 flex-col gap-3 hidden fade-in delay-2">
     <h2 class="text-yellow-400 font-bold text-lg">対応状況</h2>
     <div id="status-meta" class="text-gray-300 text-sm"></div>
 
@@ -127,11 +129,25 @@
     document.body.appendChild(s);
   }
 
-  // api-client.js -> damages.js -> データ初期化 -> map.js の順でロード
-  load('assets/js/api-client.js', () => {
-    load('assets/js/damages.js', async () => {
-      await initDamages();
-      load('assets/js/map.js');
+  // リサイズ可能なパネルとタッチ画像モーダルを先に読み込み
+  load('assets/js/resizable-panels.js', () => {
+    load('assets/js/touch-image-modal.js', () => {
+      // api-client.js -> damages.js -> データ初期化 -> map.js の順でロード
+      load('assets/js/api-client.js', () => {
+        load('assets/js/damages.js', async () => {
+          await initDamages();
+          load('assets/js/map.js', () => {
+            // マップ読み込み後にリサイズ機能を初期化
+            if (window.ResizablePanels) {
+              new ResizablePanels('map-container', 'status-panel', 'index-panel-widths');
+            }
+            // 画像モーダルのタッチ操作を初期化
+            if (window.TouchImageModal) {
+              new TouchImageModal('image-modal', 'modal-image');
+            }
+          });
+        });
+      });
     });
   });
 })();

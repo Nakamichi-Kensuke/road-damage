@@ -64,9 +64,9 @@
 </aside>
 
 <main class="flex-1 p-4 overflow-y-auto flex flex-col">
-  <div class="flex flex-1 gap-4">
-  
-  <div class="flex-1 flex flex-col gap-4">
+  <div class="flex flex-1 gap-0">
+
+  <div id="search-left-panel" class="flex-1 flex flex-col gap-4">
     <div id="map" class="h-[400px] rounded-lg border border-gray-700 flex-shrink-0 shadow-lg fade-in delay-1 relative">
       <div id="map-overlay" class="hidden absolute inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-[1000]">
         <div class="bg-gray-800 border-2 border-yellow-500 rounded-lg p-6 text-center">
@@ -90,7 +90,9 @@
     </div>
   </div>
 
-  <div class="flex-1 flex flex-col gap-4">
+  <!-- リサイズ可能な境界線はJSで追加されます -->
+
+  <div id="search-right-panel" class="flex-1 flex flex-col gap-4">
     <div id="damage-card" class="hidden flex-1 flex flex-col gap-4 bg-gray-800 border border-gray-700 rounded-lg shadow-lg fade-in delay-3">
       <img id="damage-image" src="" alt="損傷画像" class="hidden cursor-pointer hover:opacity-90 transition-opacity">
 
@@ -157,11 +159,25 @@
     document.body.appendChild(s);
   }
 
-  // api-client.js -> damages.js -> データ初期化 -> search.js の順でロード
-  load('assets/js/api-client.js', () => {
-    load('assets/js/damages.js', async () => {
-      await initDamages();
-      load('assets/js/search.js');
+  // リサイズ可能なパネルとタッチ画像モーダルを先に読み込み
+  load('assets/js/resizable-panels.js', () => {
+    load('assets/js/touch-image-modal.js', () => {
+      // api-client.js -> damages.js -> データ初期化 -> search.js の順でロード
+      load('assets/js/api-client.js', () => {
+        load('assets/js/damages.js', async () => {
+          await initDamages();
+          load('assets/js/search.js', () => {
+            // search.js読み込み後にリサイズ機能を初期化
+            if (window.ResizablePanels) {
+              new ResizablePanels('search-left-panel', 'search-right-panel', 'search-panel-widths');
+            }
+            // 画像モーダルのタッチ操作を初期化
+            if (window.TouchImageModal) {
+              new TouchImageModal('image-modal', 'modal-image');
+            }
+          });
+        });
+      });
     });
   });
 })();
