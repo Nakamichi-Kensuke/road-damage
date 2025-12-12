@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>道路管理システム - 損傷検索</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link id="app-style" rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body class="flex h-screen">
+
+<aside id="sidebar" class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col p-4">
+  <div id="toggleSidebar" class="cursor-pointer mb-4 p-2 bg-gray-700 text-white text-center rounded">☰</div>
+  <h1 class="text-xl font-bold text-yellow-400 mb-4 sidebar-text">道路管理システム</h1>
+
+  <nav class="mb-4 border-b border-gray-700 pb-4">
+    <a href="dashboard.html" class="sidebar-link">
+      <span class="sidebar-text">ダッシュボード</span>
+    </a>
+    <a href="index.html" class="sidebar-link">
+      <span class="sidebar-text">マップ表示</span>
+    </a>
+    <a href="search.html" class="sidebar-link active">
+      <span class="sidebar-text">損傷検索</span>
+    </a>
+  </nav>
+
+  <div class="mb-4 border-b border-gray-700 pb-4">
+    <h2 class="text-gray-400 font-semibold mb-2 sidebar-text">フィルター</h2>
+
+    <label class="block text-sm font-semibold text-gray-400 mb-1 sidebar-text">月</label>
+    <select id="month-filter" class="w-full bg-gray-800 border border-gray-700 rounded-md p-2 text-white mb-3">
+      <option>全て</option>
+    </select>
+
+    <label class="block text-sm font-semibold text-gray-400 mb-1 sidebar-text">大きさ</label> <select id="severity-filter" class="w-full bg-gray-800 border border-gray-700 rounded-md p-2 text-white mb-3">
+      <option>全て</option>
+    </select>
+
+    <label class="block text-sm font-semibold text-gray-400 mb-1 sidebar-text">損傷の種類</label>
+    <select id="type-filter" class="w-full bg-gray-800 border border-gray-700 rounded-md p-2 text-white mb-3">
+      <option>全て</option>
+    </select>
+
+    <label class="block text-sm font-semibold text-gray-400 mb-1 sidebar-text">対応状況</label>
+    <select id="status-filter" class="w-full bg-gray-800 border border-gray-700 rounded-md p-2 text-white">
+      <option>全て</option>
+      <option value="pending">未対応</option>
+      <option value="in-progress">対応中</option>
+      <option value="completed">対応完了</option>
+      <option value="cancelled">対応不要</option>
+    </select>
+  </div>
+
+  <button id="reset-filters" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded mt-2 sidebar-text">リセット</button>
+
+  <div class="mt-4 sidebar-text">
+    <h3 class="text-sm font-semibold text-gray-400 mb-2">大きさ</h3> <div class="legend-item"><span class="legend-dot legend-high"></span> 大</div> <div class="legend-item"><span class="legend-dot legend-medium"></span> 中</div> <div class="legend-item"><span class="legend-dot legend-low"></span> 小</div> </div>
+
+  
+</aside>
+
+<main class="flex-1 p-4 overflow-y-auto flex flex-col">
+  <div class="flex flex-1 gap-4">
+  
+  <div class="flex-1 flex flex-col gap-4">
+    <div id="map" class="h-[400px] rounded-lg border border-gray-700 flex-shrink-0 shadow-lg fade-in delay-1 relative">
+      <div id="map-overlay" class="hidden absolute inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-[1000]">
+        <div class="bg-gray-800 border-2 border-yellow-500 rounded-lg p-6 text-center">
+          <p class="text-yellow-400 text-xl font-bold">位置データが存在しません</p>
+          <p class="text-gray-400 text-sm mt-2">この損傷には位置情報が記録されていません</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-lg fade-in delay-2 flex-1 flex flex-col">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-base font-semibold text-white">検索結果 <span id="result-count" class="text-gray-400"></span></h2>
+      </div>
+      <div id="result-list" class="space-y-2 max-h-[280px] overflow-y-auto pr-2 flex-1"></div>
+      
+      <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-700">
+        <button id="toReportBtn" class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded hidden">報告書作成</button>
+        <button id="toMapBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded hidden">マップで表示</button>
+        <button id="deleteDamageBtn" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded hidden ml-auto">この損傷を削除</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-1 flex flex-col gap-4">
+    <div id="damage-card" class="hidden flex-1 flex flex-col gap-4 bg-gray-800 border border-gray-700 rounded-lg shadow-lg fade-in delay-3">
+      <img id="damage-image" src="" alt="損傷画像" class="hidden cursor-pointer hover:opacity-90 transition-opacity">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+        <div class="detail-row"><span class="detail-label">種類:</span> <span class="detail-value" id="type"></span></div>
+        <div class="detail-row"><span class="detail-label">大きさ:</span> <span class="detail-value" id="severity"></span></div>
+        <div class="detail-row"><span class="detail-label">発見日時:</span> <span class="detail-value" id="date"></span></div>
+        <div class="detail-row"><span class="detail-label">位置（10進度）:</span> <span class="detail-value" id="gps"></span></div>
+        <div class="detail-row"><span class="detail-label">パトロール班:</span> <span class="detail-value" id="patrolTeam"></span></div>
+        <div class="detail-row"><span class="detail-label">車両:</span> <span class="detail-value" id="vehicle"></span></div>
+        <div class="detail-row"><span class="detail-label">天候:</span> <span class="detail-value" id="weather"></span></div>
+      </div>
+
+      <div class="card-section">
+        <h3>文字起こしメモ</h3>
+        <p id="voice-text"></p>
+      </div>
+
+      <div class="card-section">
+        <h3>ボイスメモ</h3>
+        <audio id="voice" controls class="w-full"></audio>
+      </div>
+
+      <div class="card-section">
+        <h3 class="text-gray-300 font-semibold mb-2">音声メモ編集</h3>
+
+        <div class="mb-3">
+          <label for="search-responseNotes" class="text-gray-400 font-semibold text-sm block mb-1">メモ内容</label>
+          <textarea id="search-responseNotes" rows="5" class="w-full bg-gray-900 border border-gray-700 text-white rounded-md p-2 resize-vertical"></textarea>
+        </div>
+
+        <div class="flex gap-2">
+          <button id="search-saveStatus" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded">保存</button>
+        </div>
+      </div>
+
+      </div>
+
+    <div id="no-selection" class="">
+      <p>検索結果から損傷を選択してください。</p>
+    </div>
+  </div>
+  
+  </div>
+</main>
+
+<!-- 画像モーダル -->
+<div id="image-modal" class="hidden fixed inset-0 bg-black bg-opacity-85 z-[2000] flex items-center justify-center p-4">
+  <div class="relative w-full h-full flex items-center justify-center">
+    <button id="close-modal" class="absolute top-4 right-4 text-white text-5xl font-bold hover:text-red-500 z-10 cursor-pointer transition-colors">&times;</button>
+    <button id="toggle-image-type" class="absolute top-6 left-6 w-64 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded z-10 cursor-pointer transition-colors">元画像を表示</button>
+    <img id="modal-image" src="" alt="損傷画像" class="max-w-[95vw] max-h-[95vh] object-contain rounded-lg shadow-2xl">
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+(function(){
+  const v = String(Date.now());
+  function load(src, onload){
+    const s = document.createElement('script');
+    s.src = src + '?v=' + v;
+    s.onload = onload;
+    document.body.appendChild(s);
+  }
+
+  // api-client.js -> damages.js -> データ初期化 -> search.js の順でロード
+  load('assets/js/api-client.js', () => {
+    load('assets/js/damages.js', async () => {
+      await initDamages();
+      load('assets/js/search.js');
+    });
+  });
+})();
+</script>
+</body>
+</html>

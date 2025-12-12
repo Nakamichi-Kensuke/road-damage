@@ -1,0 +1,308 @@
+/* ===== 全体 ===== */
+body {
+  font-family: 'Noto Sans', sans-serif;
+  background-color: #1f2937;
+  color: #f9fafb;
+  margin: 0;
+  display: flex;
+  height: 100vh;
+}
+
+/* ===== マップ ===== */
+#map {
+  flex: 1;
+  width: 100%;
+  /* ★ 削除: Tailwind側で指定するため削除 */
+  /* border-radius: 0.75rem; */
+  /* box-shadow: 0 4px 12px rgba(0,0,0,0.5); */
+}
+
+/* ===== サイドバー ===== */
+#sidebar {
+  width: 16rem;
+  background-color: #111827;
+  border-right: 1px solid #374151;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  transition: width 0.3s ease;
+}
+
+.sidebar-collapsed {
+  width: 3.5rem !important;
+}
+
+.hidden-text {
+  display: none;
+}
+
+/* ===== サイドバーリンク (★ スタイリッシュ版に変更) ===== */
+.sidebar-link {
+  display: block;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 0.25rem;
+  text-decoration: none;
+  color: #d1d5db; /* gray-300 */
+  border-left: 4px solid transparent; /* 枠線用のスペース確保 */
+  transition: all 0.2s ease;
+  padding-left: calc(1rem - 4px); /* 枠線の分だけ内側へ */
+}
+
+.sidebar-link:hover {
+  background-color: #374151; /* gray-700 */
+  color: #f9fafb; /* white */
+  border-left-color: #374151; /* ホバー時も枠線を背景色で埋める */
+}
+
+/* ★ アクティブなリンクのスタイルを追加 */
+.sidebar-link.active {
+  background-color: rgba(250, 204, 21, 0.1); /* yellow-400 with 10% opacity */
+  color: #facc15; /* yellow-400 */
+  border-left-color: #facc15; /* yellow-400 */
+  font-weight: 600; /* 少し太く */
+}
+
+
+/* ===== トグルボタン ===== */
+#toggleSidebar {
+  cursor: pointer;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: #374151;
+  border-radius: 0.375rem;
+  text-align: center;
+  color: #f9fafb;
+  font-weight: bold;
+}
+
+/* ===== ポップアップボタン ===== */
+.leaflet-popup-content button {
+  background-color: #1173d4;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.leaflet-popup-content button:hover {
+  background-color: #0f63b0;
+}
+
+/* ===== 検索結果リスト ===== */
+.result-item {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s;
+}
+
+.result-item:hover {
+  background-color: #374151;
+}
+
+/* 検索結果の選択中スタイル */
+.result-item.selected {
+  border-color: #3b82f6;
+  background-color: rgba(59,130,246,0.15);
+}
+
+/* ===== 損傷詳細カード (search.html) (★ ダークモード対応) ===== */
+#damage-card {
+  background-color: #1f2937; /* bg-gray-800 */
+  border: 1px solid #374151; /* border-gray-700 */
+  border-radius: 0.75rem; /* rounded-xl */
+  padding: 1.5rem; /* ★ 修正: p-4 -> p-6 (余白を戻す) */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* space-y-4 */
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #374151; /* border-gray-700 */
+  padding-bottom: 0.5rem; /* pb-2 */
+}
+
+.detail-label {
+  color: #9ca3af; /* text-gray-400 */
+  font-size: 1rem; /* ★ 修正: text-sm -> text-base */
+  font-weight: 600;
+}
+
+.detail-value {
+  color: #f9fafb; /* text-white */
+  font-size: 1rem; /* ★ 修正: text-sm -> text-base */
+  font-weight: 500;
+  text-align: right;
+}
+
+.card-section {
+  margin-top: 0.5rem; /* mt-2 */
+  padding: 0.75rem; /* ★ 修正: p-4 -> p-3 */
+  background-color: #111827; /* bg-gray-900 */
+  border: 1px solid #374151; /* border-gray-700 */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: none;
+}
+
+.card-section h3 {
+  font-weight: bold;
+  color: #facc15; /* text-yellow-400 */
+  margin-bottom: 0.5rem; /* mb-2 */
+  border-bottom: none;
+  padding-bottom: 0;
+  font-size: 1.125rem; /* ★ 修正: text-base -> text-lg */
+}
+
+/* 画像 (search.html) */
+#damage-image {
+  width: 100%; 
+  max-height: 400px; /* ★★★ 修正: 300px -> 400px ★★★ */
+  object-fit: contain; /* ★ 修正: cover -> contain (4:3対応) */
+  border-radius: 0.5rem;
+  border: 1px solid #374151;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  margin: 0; 
+}
+
+/* 詳細情報 (search.html) (★ 不要になったため削除) */
+/* #damage-info { ... } */
+
+/* ボイスメモ (search.html) */
+#voice {
+  width: 100%;
+  margin-top: 0.5rem; /* mt-2 */
+}
+
+/* ボイスメモテキスト (search.html) */
+#voice-text {
+  background-color: #1f2937; /* bg-gray-800 */
+  border: 1px solid #374151; /* border-gray-700 */
+  border-radius: 0.5rem;
+  padding: 0.75rem; /* p-3 */
+  white-space: pre-wrap;
+  color: #d1d5db; /* text-gray-300 */
+  font-size: 1rem; /* ★ 修正: text-sm -> text-base */
+}
+
+/* ★★★ 修正箇所 ★★★ */
+/* 不選択時メッセージ (search.html) */
+#no-selection {
+  /* display: flex; */ /* 削除 */
+  /* align-items: center; */ /* 削除 */
+  /* justify-content: center; */ /* 削除 */
+  text-align: center;
+  /* height: 100%; */ /* 削除 */
+  padding-top: 4rem; /* pt-16 (上からの余白) */
+  font-size: 1rem;
+  color: #6b7280; /* text-gray-500 */
+  /* border: 2px dashed #374151; */ /* 削除 */
+  /* border-radius: 0.75rem; */ /* 削除 */
+}
+/* ★★★ 修正ここまで ★★★ */
+
+
+/* 凡例 */
+.legend-item { display: flex; align-items: center; gap: 0.5rem; color: #d1d5db; font-size: 0.9rem; margin-bottom: 0.25rem; }
+.legend-dot { width: 10px; height: 10px; border-radius: 9999px; display: inline-block; }
+.legend-high { background-color: #ef4444; }
+.legend-medium { background-color: #f59e0b; }
+.legend-low { background-color: #10b981; }
+
+/* ===== アニメーション ===== */
+.fade-in {
+  animation: fadeInAnimation 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* アニメーションの遅延 */
+.fade-in.delay-1 { animation-delay: 0.1s; }
+.fade-in.delay-2 { animation-delay: 0.2s; }
+.fade-in.delay-3 { animation-delay: 0.3s; }
+.fade-in.delay-4 { animation-delay: 0.4s; }
+.fade-in.delay-5 { animation-delay: 0.5s; }
+.fade-in.delay-6 { animation-delay: 0.6s; }
+.fade-in.delay-7 { animation-delay: 0.7s; }
+.fade-in.delay-8 { animation-delay: 0.8s; }
+.fade-in.delay-9 { animation-delay: 0.9s; } 
+
+
+@keyframes fadeInAnimation {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== ドーナツチャート用 ===== */
+.donut-chart-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* 12px */
+  height: 100%;
+}
+.donut-chart-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem; /* 16px */
+  flex-wrap: wrap; /* 小画面で折り返し */
+}
+.donut-chart-svg {
+  transform: rotate(-90deg); /* 12時の位置から開始 */
+  width: 120px; /* SVGサイズ固定 */
+  height: 120px;
+  flex-shrink: 0;
+}
+.donut-chart-segment {
+  transition: stroke-dashoffset 0.8s ease-out;
+  animation: donutFadeIn 0.8s ease-out forwards;
+}
+.donut-chart-text {
+  transform: rotate(90deg); /* 回転を戻す */
+}
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* 8px */
+  flex: 1;
+  min-width: 150px; /* 凡例の最小幅 */
+}
+.donut-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* 8px */
+  font-size: 0.875rem; /* 14px */
+}
+.donut-legend-label {
+  color: #d1d5db; /* gray-300 */
+}
+.donut-legend-value {
+  color: #f9fafb; /* gray-50 */
+  font-weight: 600;
+  margin-left: auto;
+}
+
+@keyframes donutFadeIn {
+  from { stroke-opacity: 0; }
+  to { stroke-opacity: 1; }
+}

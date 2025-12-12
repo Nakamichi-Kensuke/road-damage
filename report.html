@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>道路管理システム - 報告書作成</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+
+<link rel="stylesheet" href="assets/css/style.css?v=20251031">
+<link rel="stylesheet" href="assets/css/report.css?v=20251031">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body class="report-page">
+
+<aside id="sidebar" class="flex flex-col p-4">
+  <div id="toggleSidebar">☰</div>
+  <h1 class="text-xl font-bold text-yellow-400 mb-4 sidebar-text">道路管理システム</h1>
+  <nav class="mb-4 border-b border-gray-700 pb-4">
+    <a href="dashboard.html" class="sidebar-link">
+      <span class="sidebar-text">ダッシュボード</span>
+    </a>
+    <a href="index.html" class="sidebar-link">
+      <span class="sidebar-text">マップ表示</span>
+    </a>
+    <a href="search.html" class="sidebar-link">
+      <span class="sidebar-text">損傷検索</span>
+    </a>
+    <a href="report.html" class="sidebar-link active">
+      <span class="sidebar-text">報告書作成</span>
+    </a>
+  </nav>
+
+  <div class="flex flex-col gap-2 mt-auto">
+    <button id="pdfBtn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded">PDF生成・保存</button>
+    <button id="backBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded">戻る</button>
+  </div>
+</aside>
+
+<main class="flex-1 p-8 overflow-y-auto">
+  <section id="reportContent" class="a4-page">
+    <div id="reportHeader">
+      <h1>道路損傷報告書</h1>
+      <h2>現場確認・記録用</h2>
+    </div>
+
+    <div id="reportDetails" class="grid grid-cols-2 gap-2 p-2 bg-gray-100 border rounded">
+      <div><span class="font-semibold">種類:</span> <span id="r-type"></span></div>
+      <div><span class="font-semibold">大きさ:</span> <span id="r-severity"></span></div> <div><span class="font-semibold">発見日時:</span> <span id="r-date"></span></div>
+      <div><span class="font-semibold">位置（10進度）:</span> <span id="r-gps"></span></div>
+      <div><span class="font-semibold">パトロール班:</span> <span id="r-patrolTeam"></span></div>
+      <div><span class="font-semibold">車両情報:</span> <span id="r-vehicle"></span></div>
+      <div><span class="font-semibold">天候:</span> <span id="r-weather"></span></div>
+    </div>
+
+    <div class="report-section image-frame mt-4">
+      <img id="r-image" src="" alt="損傷画像">
+    </div>
+
+    <div class="report-section mt-4">
+      <h3>文字起こしメモ</h3>
+      <p id="r-voiceText"></p>
+    </div>
+
+    <div class="flex gap-4 mt-2">
+      <div class="report-section flex-1">
+        <h3>担当者コメント</h3>
+        <textarea id="r-comment" rows="4" placeholder="現場確認結果や対応方針などを記入"></textarea>
+      </div>
+
+      <div class="report-section w-32 flex flex-col items-center justify-center">
+        <h3>確認印欄</h3>
+        <div class="stamp-box mt-2"></div>
+        <p class="text-sm mt-1">担当者</p>
+      </div>
+    </div>
+
+    <footer class="mt-4 text-right">
+      作成日: <span id="reportDate"></span>
+    </footer>
+  </section>
+</main>
+
+<script src="assets/js/report.js"></script>
+</body>
+</html>

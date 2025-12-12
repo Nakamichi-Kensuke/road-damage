@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>道路管理システム - マップ表示</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link id="app-style" rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<aside id="sidebar" class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col p-4">
+  <div id="toggleSidebar">☰</div>
+  <h1 class="text-xl font-bold text-yellow-400 mb-4 sidebar-text">道路管理システム</h1>
+
+  <nav class="mb-4 border-b border-gray-700 pb-4">
+    <a href="dashboard.html" class="sidebar-link">
+      <span class="sidebar-text">ダッシュボード</span>
+    </a>
+    <a href="index.html" class="sidebar-link active">
+      <span class="sidebar-text">マップ表示</span>
+    </a>
+    <a href="search.html" class="sidebar-link">
+      <span class="sidebar-text">損傷検索</span>
+    </a>
+  </nav>
+
+  <div class="mb-4 border-b border-gray-700 pb-4">
+    <h2 class="text-gray-400 font-semibold mb-2 sidebar-text">フィルター</h2>
+    <label class="block text-sm font-semibold text-gray-400 mb-1 sidebar-text">月</label>
+    <select id="month-filter" class="w-full bg-gray-800 border border-gray-700 rounded-md p-2 text-white mb-3">
+      <option>全て</option>
+    </select>
+
+    <label class="block text-sm font-semibold text-gray-400 mb-1 sidebar-text">大きさ</label> <select id="severity-filter" class="w-full bg-gray-800 border border-gray-700 rounded-md p-2 text-white mb-3">
+      <option>全て</option>
+    </select>
+
+    <label class="block text-sm font-semibold text-gray-400 mb-1 sidebar-text">損傷の種類</label>
+    <select id="type-filter" class="w-full bg-gray-800 border border-gray-700 rounded-md p-2 text-white mb-3">
+      <option>全て</option>
+    </select>
+
+    <label class="block text-sm font-semibold text-gray-400 mb-1 sidebar-text">対応状況</label>
+    <select id="status-filter" class="w-full bg-gray-800 border border-gray-700 rounded-md p-2 text-white">
+      <option>全て</option>
+      <option value="pending">未対応</option>
+      <option value="in-progress">対応中</option>
+      <option value="completed">対応完了</option>
+      <option value="cancelled">対応不要</option>
+    </select>
+  </div>
+
+  <button id="reset-filters" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded mt-2 sidebar-text">リセット</button>
+
+  <div class="mt-4 sidebar-text">
+    <h3 class="text-sm font-semibold text-gray-400 mb-2">大きさ</h3> <div class="legend-item"><span class="legend-dot legend-high"></span> 大</div> <div class="legend-item"><span class="legend-dot legend-medium"></span> 中</div> <div class="legend-item"><span class="legend-dot legend-low"></span> 小</div> </div>
+
+  
+</aside>
+
+<div class="flex flex-1 gap-4 p-4">
+  <div class="flex-1 flex">
+    <div id="map" class="rounded-lg shadow-lg border border-gray-700 fade-in delay-1"></div>
+  </div>
+
+  <aside id="status-panel" class="w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 flex-col gap-3 hidden fade-in delay-2">
+    <h2 class="text-yellow-400 font-bold text-lg">対応状況</h2>
+    <div id="status-meta" class="text-gray-300 text-sm"></div>
+
+    <div>
+      <img id="status-image" alt="損傷画像" class="w-full h-48 object-cover rounded-md border border-gray-700 hidden cursor-pointer hover:opacity-90 transition-opacity" />
+    </div>
+
+    <div>
+      <label class="text-gray-400 font-semibold text-sm">状態</label>
+      <div class="grid grid-cols-2 gap-2 mt-1">
+        <button type="button" data-status="pending" class="status-btn text-sm py-2 px-3 rounded border border-gray-600 text-gray-300 hover:bg-gray-700">未対応</button>
+        <button type="button" data-status="in-progress" class="status-btn text-sm py-2 px-3 rounded border border-gray-600 text-gray-300 hover:bg-gray-700">対応中</button>
+        <button type="button" data-status="completed" class="status-btn text-sm py-2 px-3 rounded border border-gray-600 text-gray-300 hover:bg-gray-700">対応完了</button>
+        <button type="button" data-status="cancelled" class="status-btn text-sm py-2 px-3 rounded border border-gray-600 text-gray-300 hover:bg-gray-700">対応不要</button>
+      </div>
+    </div>
+
+    <div>
+      <label for="responseDate" class="text-gray-400 font-semibold text-sm">完了日</label>
+      <input id="responseDate" type="date" class="w-full bg-gray-900 border border-gray-700 text-white rounded-md p-2 mt-1 disabled:opacity-50" />
+    </div>
+
+    <div>
+      <label for="responseDetails" class="text-gray-400 font-semibold text-sm">対応内容</label>
+      <textarea id="responseDetails" rows="3" class="w-full bg-gray-900 border border-gray-700 text-white rounded-md p-2 mt-1"></textarea>
+    </div>
+
+    <div>
+      <label for="responseNotes" class="text-gray-400 font-semibold text-sm">特記事項</label>
+      <textarea id="responseNotes" rows="3" class="w-full bg-gray-900 border border-gray-700 text-white rounded-md p-2 mt-1"></textarea>
+    </div>
+
+    <div class="flex gap-2 flex-wrap mt-2">
+      <button id="saveStatus" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded">保存</button>
+      <button id="toSearch" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded">詳細</button>
+      <button id="deleteDamage" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded">削除</button>
+      <button id="closeStatus" class="bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded">閉じる</button>
+    </div>
+  </aside>
+</div>
+
+<!-- 画像モーダル -->
+<div id="image-modal" class="hidden fixed inset-0 bg-black bg-opacity-85 z-[2000] flex items-center justify-center p-4">
+  <div class="relative w-full h-full flex items-center justify-center">
+    <button id="close-modal" class="absolute top-4 right-4 text-white text-5xl font-bold hover:text-red-500 z-10 cursor-pointer transition-colors">&times;</button>
+    <button id="toggle-image-type" class="absolute top-6 left-6 w-64 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded z-10 cursor-pointer transition-colors">元画像を表示</button>
+    <img id="modal-image" src="" alt="損傷画像" class="max-w-[95vw] max-h-[95vh] object-contain rounded-lg shadow-2xl">
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+(function(){
+  const v = String(Date.now());
+  function load(src, onload){
+    const s = document.createElement('script');
+    s.src = src + '?v=' + v;
+    s.onload = onload;
+    document.body.appendChild(s);
+  }
+
+  // api-client.js -> damages.js -> データ初期化 -> map.js の順でロード
+  load('assets/js/api-client.js', () => {
+    load('assets/js/damages.js', async () => {
+      await initDamages();
+      load('assets/js/map.js');
+    });
+  });
+})();
+</script>
+</body>
+</html>
